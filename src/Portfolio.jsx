@@ -3,36 +3,75 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion'
 import { Sun, Moon } from 'lucide-react'
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa'
-
-const DEFAULT_IMG = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80"; // cool dev image
+const DEFAULT_IMG = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80";
 
 function ProjectsSection() {
-  // ...state and fetch same as before...
+  const [repos, setRepos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("https://api.github.com/users/eyecandycoder/repos?sort=updated")
+      .then(res => res.json())
+      .then(data => {
+        setRepos(
+          data.filter(r => !r.fork && r.description).slice(0, 6)
+        );
+        setLoading(false);
+      });
+  }, []);
+
   return (
-    <section className="py-16 px-6 max-w-5xl mx-auto" id="projects">
-      <h3 className="text-2xl font-semibold mb-8 text-center">Projects</h3>
+    <section
+      className="py-20 px-4 min-h-[80vh] relative"
+      id="projects"
+      style={{
+        background: "linear-gradient(135deg, #dbeafe 0%, #f3e8ff 100%)",
+        boxShadow: "inset 0 2px 24px #e0e7ef"
+      }}
+    >
+      <h3 className="text-3xl font-extrabold mb-12 text-center text-gray-900 drop-shadow-lg">🚀 Projects</h3>
       {loading ? (
         <div className="text-center text-lg">Loading projects...</div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
           {repos.map((project, i) => (
             <motion.div
               key={project.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.13 }}
-              whileHover={{ scale: 1.04, boxShadow: "0 10px 32px rgba(0,0,0,0.13)" }}
-              className="p-0 rounded-xl shadow bg-white dark:bg-gray-800 transition overflow-hidden flex flex-col"
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.12 }}
+              whileHover={{
+                scale: 1.045,
+                rotate: -1 + Math.random() * 2, // fun little card tilt!
+                boxShadow: "0 8px 48px rgba(68,0,255,0.08)",
+              }}
+              className="rounded-2xl overflow-hidden shadow-xl bg-white/80 backdrop-blur-[8px] border border-indigo-100 flex flex-col transition-transform"
+              style={{
+                borderRadius: "1.2rem",
+                minHeight: 370
+              }}
             >
-              <img src={DEFAULT_IMG} alt="Project visual" className="w-full h-36 object-cover" />
-              <div className="p-5 flex flex-col flex-1">
-                <h4 className="text-xl font-semibold mb-2">{project.name}</h4>
-                <p className="text-sm mb-3 flex-1">{project.description}</p>
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
-                  <span>★ {project.stargazers_count}</span>
-                  {project.language && <span>· {project.language}</span>}
+              <img
+                src={DEFAULT_IMG}
+                alt="Project visual"
+                className="w-full h-40 object-cover"
+                style={{ filter: "blur(0px) saturate(1.2)" }}
+                loading="lazy"
+              />
+              <div className="p-6 flex-1 flex flex-col">
+                <h4 className="text-xl font-bold mb-2 text-gray-800">{project.name.replaceAll('_', ' ')}</h4>
+                <p className="text-gray-600 text-[0.98rem] mb-3 flex-1">{project.description}</p>
+                <div className="flex items-center gap-3 mb-2 mt-auto">
+                  <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs font-medium">{project.language ?? "Other"}</span>
+                  <span className="text-xs text-gray-500">★ {project.stargazers_count}</span>
                 </div>
-                <a href={project.html_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                <a
+                  href={project.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-1 px-4 py-1 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 text-white font-semibold text-xs shadow hover:scale-105 transition-transform"
+                >
                   View on GitHub →
                 </a>
               </div>
@@ -43,6 +82,9 @@ function ProjectsSection() {
     </section>
   );
 }
+
+
+
 
 
 export default function App() {
