@@ -4,21 +4,10 @@ import { motion } from 'framer-motion'
 import { Sun, Moon } from 'lucide-react'
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa'
 
+const DEFAULT_IMG = "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80"; // cool dev image
+
 function ProjectsSection() {
-  const [repos, setRepos] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("https://api.github.com/users/eyecandycoder/repos?sort=updated")
-      .then(res => res.json())
-      .then(data => {
-        setRepos(
-          data.filter(r => !r.fork && r.description).slice(0, 6)
-        );
-        setLoading(false);
-      });
-  }, []);
-
+  // ...state and fetch same as before...
   return (
     <section className="py-16 px-6 max-w-5xl mx-auto" id="projects">
       <h3 className="text-2xl font-semibold mb-8 text-center">Projects</h3>
@@ -26,17 +15,27 @@ function ProjectsSection() {
         <div className="text-center text-lg">Loading projects...</div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {repos.map((project) => (
-            <motion.div key={project.id} whileHover={{ scale: 1.03 }} className="p-5 rounded-xl shadow bg-white dark:bg-gray-800 transition">
-              <h4 className="text-xl font-semibold mb-2">{project.name}</h4>
-              <p className="text-sm mb-3">{project.description}</p>
-              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
-                <span>★ {project.stargazers_count}</span>
-                {project.language && <span>· {project.language}</span>}
+          {repos.map((project, i) => (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.13 }}
+              whileHover={{ scale: 1.04, boxShadow: "0 10px 32px rgba(0,0,0,0.13)" }}
+              className="p-0 rounded-xl shadow bg-white dark:bg-gray-800 transition overflow-hidden flex flex-col"
+            >
+              <img src={DEFAULT_IMG} alt="Project visual" className="w-full h-36 object-cover" />
+              <div className="p-5 flex flex-col flex-1">
+                <h4 className="text-xl font-semibold mb-2">{project.name}</h4>
+                <p className="text-sm mb-3 flex-1">{project.description}</p>
+                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  <span>★ {project.stargazers_count}</span>
+                  {project.language && <span>· {project.language}</span>}
+                </div>
+                <a href={project.html_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                  View on GitHub →
+                </a>
               </div>
-              <a href={project.html_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                View on GitHub →
-              </a>
             </motion.div>
           ))}
         </div>
@@ -44,6 +43,7 @@ function ProjectsSection() {
     </section>
   );
 }
+
 
 export default function App() {
   const [dark, setDark] = useState(false);
